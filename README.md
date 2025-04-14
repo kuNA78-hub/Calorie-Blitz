@@ -27,11 +27,6 @@ Calorie Blitz is a lightweight, high-performance calorie tracking web app built 
 
 ---
 
-## 📸 Screenshots
-
-*(Add screenshots here if available, or link to a demo video)*
-
----
 
 ## 📦 Installation & Usage
 
