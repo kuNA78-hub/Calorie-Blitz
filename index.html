@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Blitz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Audiowide', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e2a38, #33475b);
+            color: #e6ecef;
+            overflow-x: hidden;
+            position: relative;
+            transition: background 0.5s;
+        }
+
+        .background-3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            perspective: 1000px;
+            overflow: hidden;
+        }
+
+        .box-3d {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 94, 135, 0.1);
+            border: 1px solid rgba(255, 94, 135, 0.3);
+            box-shadow: 0 0 20px rgba(255, 94, 135, 0.2);
+            transform-style: preserve-3d;
+            animation: float3D 15s infinite ease-in-out;
+            opacity: 0.7;
+        }
+
+        @keyframes float3D {
+            0% {
+                transform: translate(0, 0) translateZ(0) rotateX(0deg) rotateY(0deg);
+            }
+            25% {
+                transform: translate(50px, -50px) translateZ(200px) rotateX(45deg) rotateY(45deg);
+            }
+            50% {
+                transform: translate(-50px, 50px) translateZ(-200px) rotateX(90deg) rotateY(90deg);
+            }
+            75% {
+                transform: translate(50px, 50px) translateZ(100px) rotateX(135deg) rotateY(135deg);
+            }
+            100% {
+                transform: translate(0, 0) translateZ(0) rotateX(360deg) rotateY(360deg);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            color: #ff5e87;
+            text-shadow: 0 0 10px rgba(255, 94, 135, 0.4);
+            letter-spacing: 1px;
+        }
+
+        .header::after {
+            content: 'Precision Nutrition Tracking';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1em;
+            color: #00c4b4;
+            text-shadow: 0 0 5px rgba(0, 196, 180, 0.3);
+        }
+
+        .upload-section {
+            background: rgba(30, 42, 56, 0.95);
+            padding: 40px;
+            border-radius: 12px;
+            margin-bottom: 60px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 94, 135, 0.2);
+            position: relative;
+        }
+
+        .upload-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .upload-area {
+            width: 100%;
+            max-width: 300px;
+            height: 140px;
+            border: 2px dashed #ff5e87;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(255, 94, 135, 0.05);
+            position: relative;
+        }
+
+        .upload-area.dragover {
+            background: rgba(255, 94, 135, 0.2);
+            border-color: #00c4b4;
+            box-shadow: 0 0 15px rgba(255, 94, 135, 0.4);
+        }
+
+        .upload-area span {
+            font-size: 1.2em;
+            color: #ff5e87;
+            text-shadow: 0 0 5px rgba(255, 94, 135, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .upload-btn, .clear-btn, .control-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: linear-gradient(45deg, #ff5e87, #ff8fa3);
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(255, 94, 135, 0.3);
+        }
+
+        .clear-btn {
+            background: transparent;
+            color: #ff5e87;
+            border: 1px solid #ff5e87;
+        }
+
+        .clear-btn:hover {
+            background: #ff5e87;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(255, 94, 135, 0.5);
+        }
+
+        .control-btn {
+            background: linear-gradient(45deg, #00a896, #00c4b4);
+        }
+
+        .upload-btn:hover, .control-btn:hover {
+            box-shadow: 0 4px 15px rgba(255, 94, 135, 0.5);
+            transform: translateY(-2px);
+        }
+
+        #preview {
+            max-width: 320px;
+            margin: 20px auto;
+            display: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid #ff5e87;
+            transition: transform 0.3s;
+        }
+
+        #preview:hover {
+            transform: scale(1.02);
+        }
+
+        .results {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .calorie-card {
+            background: linear-gradient(135deg, rgba(30, 42, 56, 0.95), rgba(255, 94, 135, 0.05));
+            padding: 20px;
+            border-radius: 12px;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.5s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 94, 135, 0.2);
+            width: 260px;
+            min-width: 240px;
+            position: relative;
+        }
+
+        .calorie-card.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .calorie-card h3 {
+            color: #ff5e87;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            text-shadow: 0 0 4px rgba(255, 94, 135, 0.3);
+        }
+
+        .calorie-card p {
+            font-size: 1em;
+            margin: 5px 0;
+            color: #e6ecef;
+        }
+
+        .calorie-card p:nth-child(2) { /* Calories value */
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ff8fa3;
+        }
+
+        .calorie-card p:nth-child(2)::after { /* Add 'kcal' after the bolded value */
+            content: ' kcal';
+            font-size: 0.9em;
+            font-weight: normal;
+            color: #e6ecef;
+        }
+
+        .calorie-card p:nth-child(3) { /* Protein */
+            color: #00c4b4;
+        }
+
+        .calorie-card p:nth-child(4) { /* Carbs */
+            color: #ffd166;
+        }
+
+        .calorie-card p:nth-child(5) { /* Fat */
+            color: #ff6b6b;
+        }
+
+        /* Light theme adjustments */
+        body.light-theme {
+            background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+            color: #1e2a38;
+        }
+
+        body.light-theme .background-3d .box-3d {
+            background: rgba(255, 94, 135, 0.15);
+            border: 1px solid rgba(255, 94, 135, 0.5);
+            box-shadow: 0 0 25px rgba(255, 94, 135, 0.3);
+            opacity: 0.85;
+        }
+
+        body.light-theme .header h1,
+        body.light-theme .upload-area span,
+        body.light-theme .calorie-card h3 {
+            color: #ff5e87;
+            text-shadow: 0 0 5px rgba(255, 94, 135, 0.4);
+        }
+
+        body.light-theme .calorie-card p {
+            color: #1e2a38;
+        }
+
+        body.light-theme .calorie-card p:nth-child(2)::after {
+            color: #1e2a38;
+        }
+
+        body.light-theme .upload-btn,
+        body.light-theme .control-btn {
+            color: #fff;
+        }
+
+        body.light-theme .clear-btn {
+            color: #ff5e87;
+        }
+
+        body.light-theme .clear-btn:hover {
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2em; }
+            .upload-btn, .clear-btn, .control-btn { padding: 8px 20px; font-size: 0.9em; }
+            .calorie-card { padding: 15px; width: 100%; max-width: 280px; }
+            .upload-area { height: 120px; max-width: 260px; }
+            .upload-area span { font-size: 1em; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="background-3d" id="background-3d"></div>
+    <div class="container">
+        <div class="header">
+            <h1>Calorie Blitz</h1>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-options">
+                <input type="file" id="upload" accept="image/*" style="display: none;">
+                <button class="upload-btn" id="uploadBtn">Upload Image</button>
+                
+                <input type="file" id="camera" accept="image/*" capture="environment" style="display: none;">
+                <button class="upload-btn" id="cameraBtn">Capture Photo</button>
+            </div>
+            <div class="upload-area" id="dropZone">
+                <span>Drop Image Here</span>
+            </div>
+            <img id="preview" alt="Food Preview">
+            <div style="text-align: center;">
+                <button class="clear-btn" id="clearBtn" style="display: none;">Clear</button>
+            </div>
+            <div class="control-panel">
+                <button class="control-btn" id="historyBtn">History</button>
+                <button class="control-btn" id="exportBtn">Export</button>
+                <button class="control-btn" id="resetBtn">Reset</button>
+                <button class="control-btn" id="themeBtn">Theme</button>
+            </div>
+        </div>
+
+        <div class="results" id="results"></div>
+    </div>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+
+        // Generate 3D boxes for the background
+        const bg = document.getElementById('background-3d');
+        for (let i = 0; i < 15; i++) {
+            const box = document.createElement('div');
+            box.className = 'box-3d';
+            box.style.left = `${Math.random() * 100}%`;
+            box.style.top = `${Math.random() * 100}%`;
+            box.style.width = `${80 + Math.random() * 50}px`; // Random size between 80px and 130px
+            box.style.height = `${80 + Math.random() * 50}px`;
+            box.style.animationDelay = `${Math.random() * 5}s`;
+            box.style.animationDuration = `${10 + Math.random() * 10}s`; // Random duration between 10s and 20s
+            bg.appendChild(box);
+        }
+
+        const upload = document.getElementById('upload');
+        const camera = document.getElementById('camera');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const cameraBtn = document.getElementById('cameraBtn');
+        const dropZone = document.getElementById('dropZone');
+        const preview = document.getElementById('preview');
+        const results = document.getElementById('results');
+        const clearBtn = document.getElementById('clearBtn');
+        const historyBtn = document.getElementById('historyBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const themeBtn = document.getElementById('themeBtn');
+
+        uploadBtn.addEventListener('click', () => upload.click());
+        cameraBtn.addEventListener('click', () => camera.click());
+
+        [upload, camera].forEach(input => {
+            input.addEventListener('change', (e) => {
+                handleFile(e.target.files[0]);
+            });
+        });
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFile(e.dataTransfer.files[0]);
+        });
+
+        dropZone.addEventListener('click', () => upload.click());
+
+        let scanHistory = [];
+        let currentResults = [];
+        let lastImageUrl = '';
+
+        function displayResults(items) {
+            results.innerHTML = '';
+            items.forEach((item, index) => {
+                const card = `
+                    <div class="calorie-card">
+                        <h3>${item.item_name}</h3>
+                        <p>${item.total_calories}</p>
+                        <p>Protein: ${item.total_protien || 0}g</p>
+                        <p>Carbs: ${item.toal_carbs || 0}g</p>
+                        <p>Fat: ${item.toal_fats || 0}g</p>
+                    </div>
+                `;
+                results.innerHTML += card;
+                setTimeout(() => {
+                    const cards = document.querySelectorAll('.calorie-card');
+                    cards[index].classList.add('show');
+                }, 100 * index);
+            });
+        }
+
+        historyBtn.addEventListener('click', () => {
+            if (scanHistory.length === 0) {
+                results.innerHTML = '<p style="color: #ff5e87">No history available.</p>';
+            } else {
+                results.innerHTML = '<p style="color: #ff5e87">Tracking History:</p>';
+                displayResults(scanHistory);
+            }
+        });
+
+        exportBtn.addEventListener('click', async () => {
+            if (scanHistory.length === 0) {
+                alert('No data to export.');
+            } else {
+                const doc = new jsPDF();
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 10;
+                let yPos = margin;
+
+                doc.setFont('Audiowide', 'normal');
+                doc.setFontSize(18);
+                doc.setTextColor(255, 94, 135);
+                doc.text('Calorie Blitz Report', margin, yPos + 10);
+                yPos += 20;
+
+                if (lastImageUrl) {
+                    try {
+                        const img = new Image();
+                        img.crossOrigin = 'Anonymous';
+                        img.src = lastImageUrl;
+                        await new Promise((resolve) => {
+                            img.onload = resolve;
+                            img.onerror = () => resolve();
+                        });
+
+                        const imgWidth = 80;
+                        const imgHeight = (img.height / img.width) * imgWidth;
+                        if (yPos + imgHeight + 10 > pageHeight - margin) {
+                            doc.addPage();
+                            yPos = margin;
+                        }
+                        doc.addImage(img, 'JPEG', margin, yPos, imgWidth, imgHeight);
+                        doc.link(margin, yPos, imgWidth, imgHeight, { url: lastImageUrl });
+                        yPos += imgHeight + 10;
+                    } catch (error) {
+                        console.error('Failed to load image for PDF:', error);
+                    }
+                }
+
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 255);
+                scanHistory.forEach((item) => {
+                    const itemHeight = 50;
+                    if (yPos + itemHeight > pageHeight - margin) {
+                        doc.addPage();
+                        yPos = margin;
+                    }
+                    
+                    const itemText = `Item: ${item.item_name}`;
+                    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(item.item_name + ' nutrition')}`;
+                    doc.textWithLink(itemText, margin, yPos, { url: searchUrl });
+                    doc.setTextColor(0, 0, 0);
+                    doc.text(`${item.total_calories} kcal`, margin, yPos + 10);
+                    doc.text(`Protein: ${item.total_protien || 0}g`, margin, yPos + 20);
+                    doc.text(`Carbs: ${item.toal_carbs || 0}g`, margin, yPos + 30);
+                    doc.text(`Fat: ${item.toal_fats || 0}g`, margin, yPos + 40);
+                    doc.setTextColor(0, 0, 255);
+                    yPos += itemHeight;
+                });
+
+                doc.save('calorie_blitz_report.pdf');
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            scanHistory = [];
+            currentResults = [];
+            lastImageUrl = '';
+            results.innerHTML = '<p style="color: #ff5e87">System reset.</p>';
+            preview.style.display = 'none';
+            clearBtn.style.display = 'none';
+            upload.value = '';
+            camera.value = '';
+        });
+
+        let isDarkTheme = true;
+        themeBtn.addEventListener('click', () => {
+            isDarkTheme = !isDarkTheme;
+            document.body.classList.toggle('light-theme', !isDarkTheme);
+            results.innerHTML = `<p style="color: #ff5e87">Theme set to ${isDarkTheme ? 'Dark' : 'Light'}.</p>`;
+            if (currentResults.length > 0) {
+                displayResults(currentResults);
+            } else if (scanHistory.length > 0 && results.innerHTML.includes('Tracking History')) {
+                displayResults(scanHistory);
+            }
+        });
+
+        async function handleFile(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    clearBtn.style.display = 'block';
+                    
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    
+                    try {
+                        const imgbbResponse = await fetch('https://api.imgbb.com/1/upload?key=caa9e987e52508e76795ed3edebc273a', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const imgbbData = await imgbbResponse.json();
+                        lastImageUrl = imgbbData.data.url;
+                        await analyzeFood(lastImageUrl);
+                    } catch (error) {
+                        console.error('Error:', error);
+                        results.innerHTML = '<p style="color: #ff5e87">Error processing image. Please retry.</p>';
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        clearBtn.addEventListener('click', () => {
+            preview.style.transform = 'scale(0)';
+            setTimeout(() => {
+                preview.style.display = 'none';
+                preview.style.transform = 'scale(1)';
+                results.innerHTML = '';
+                clearBtn.style.display = 'none';
+                upload.value = '';
+                camera.value = '';
+                currentResults = [];
+            }, 300);
+        });
+
+        async function analyzeFood(imageUrl) {
+            results.innerHTML = '<p style="color: #ff5e87">Analyzing image...</p>';
+            
+            const grokResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer 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',
+                    'Cookie': '__cf_bm=LWV1pJSeoJ2wTvv52SAr3jE9NG4K32tqBXbB9MhITqQ-1742662265-1.0.1.1-e0JTSb37i.AUEeTPNJ0AQJfvcwWp9AEVgtBz4XSdIEU.Kj0VKJNPpJg8prnslEf6KGwl1gKk93yPgHY5W9UeJAwG7p.u4mK19v.b_HWJhIs'
+                },
+                body: JSON.stringify({
+                    messages: [{
+                        role: "user",
+                        content: [
+                            {
+                                type: "text",
+                                text: "Give calories of each item in this image in this below JSON format only\n {items:[{item_name:name of item, total_calories:in gm, total_protien:in gm , toal_carbs: in gm ,toal_fats:in gm},...]}"
+                            },
+                            {
+                                type: "image_url",
+                                image_url: { url: imageUrl }
+                            }
+                        ]
+                    }],
+                    model: "llama-3.2-90b-vision-preview",
+                    temperature: 1,
+                    max_completion_tokens: 1024,
+                    top_p: 1,
+                    stream: false,
+                    response_format: { type: "json_object" },
+                    stop: null
+                })
+            });
+
+            const grokData = await grokResponse.json();
+            const items = JSON.parse(grokData.choices[0].message.content).items;
+            scanHistory.push(...items);
+            currentResults = [...items];
+            displayResults(currentResults);
+        }
+    </script>
+</body>
+</html>
